@@ -66,3 +66,54 @@ def subplot_col_cat(df, exclude_cols=None):
     plt.tight_layout()
     plt.show()
 
+
+def subplot_col_num(df):
+    """
+    Qué realiza la función:
+        - Identifica todas las columnas numéricas del DataFrame.
+        - Para cada columna, genera:
+            1. Un histograma con 200 bins mostrando la distribución de los valores.
+            2. Un boxplot para visualizar posibles outliers.
+        - Cada columna utiliza un color distinto de la paleta 'rocket' para mantener consistencia visual.
+        - Ajusta automáticamente el tamaño de la figura según el número de columnas.
+        - Elimina ejes sobrantes si hay más subplots que columnas.
+
+    Parámetros:
+        df (pd.DataFrame): DataFrame sobre el que se generarán los gráficos.
+
+    Retorna:
+        None: La función muestra los gráficos directamente y no devuelve valores.
+
+    Uso:
+        subplot_col_num(df_no_nulos)
+    """
+
+
+    col_nums = df.select_dtypes(include='number').columns
+    num_graph = len(col_nums)
+
+    # Extraer colores de la paleta rocket
+    rocket_colors = sns.color_palette('rocket', num_graph)
+
+    num_rows = (num_graph + 2) // 2
+    fig, axes = plt.subplots(num_graph, 2, figsize=(15, num_rows * 5))
+
+    for i, col in enumerate(col_nums):
+        color = rocket_colors[i]  # color de la columna i
+
+        # Histograma con color
+        sns.histplot(data=df, x=col, ax=axes[i,0], bins=200, color=color)
+        axes[i,0].set_title(f'Distribucion de {col}')
+        axes[i,0].set_xlabel(col)
+        axes[i,0].set_ylabel('Frecuencia')
+        
+        # Boxplot con color
+        sns.boxplot(data=df, x=col, ax=axes[i,1], color=color)
+        axes[i,1].set_title(f'Boxplot de {col}')
+
+    for j in range(i + 1, len(axes)):
+        fig.delaxes(axes[j])
+
+    plt.tight_layout()
+    plt.show()
+
