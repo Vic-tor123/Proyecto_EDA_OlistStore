@@ -117,3 +117,31 @@ def subplot_col_num(df):
     plt.tight_layout()
     plt.show()
 
+def matriz_correlacion(df):
+    """
+    Qué realiza la función  
+        Calcula y visualiza la matriz de correlación entre las columnas numéricas del DataFrame.  
+      
+    Qué incluye el análisis  
+        - Calcula la correlación de Pearson entre todas las columnas numéricas.  
+        - Genera un gráfico de mapa de calor (heatmap) usando seaborn.  
+        - Muestra solo la mitad superior de la matriz para mayor claridad.  
+        - Los valores se anotan y se colorean según la intensidad de correlación (-1 a 1).  
+
+    Parámetros:
+    df (pd.DataFrame): DataFrame sobre el que se calculará la matriz de correlación.
+
+    Returns:
+    None
+    """
+    #calcular matriz de correlacion
+    corr_matrix = df.corr(numeric_only=True)
+    #crear la figura
+    plt.figure(figsize=corr_matrix.shape)
+
+    # crear una mascara para mostrar solo la parte triangular
+    mask = np.triu(np.ones_like(corr_matrix,dtype=bool))
+
+    #Graficar el mapa de calor
+    sns.heatmap(corr_matrix,annot=True,vmin=-1,vmax=1,cmap='cool', mask=mask)
+    plt.show()
