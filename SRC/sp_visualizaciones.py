@@ -145,3 +145,48 @@ def matriz_correlacion(df):
     #Graficar el mapa de calor
     sns.heatmap(corr_matrix,annot=True,vmin=-1,vmax=1,cmap='cool', mask=mask)
     plt.show()
+
+
+
+################## generica eliminar
+
+
+
+
+
+
+####################### generica
+
+
+
+def lineplot_mensual(df, eje_x, eje_y, agregacion="count", figsize=(6,4), color="#6A176E", rotation=45):
+    """
+    Genera un gráfico de línea mensual a partir de un DataFrame con fechas,
+    permitiendo elegir entre conteo (count), suma (sum) o media (mean).
+    """
+
+    if agregacion == "count":
+        df_plot = df.groupby(df[eje_x].dt.to_period('M'))[eje_y].count().reset_index()
+    
+    elif agregacion == "sum":
+        df_plot = df.groupby(df[eje_x].dt.to_period('M'))[eje_y].sum().reset_index()
+    
+    elif agregacion == "mean":
+        df_plot = df.groupby(df[eje_x].dt.to_period('M'))[eje_y].mean().reset_index()
+    
+    else:
+        raise ValueError("agregacion debe ser 'count', 'sum' o 'mean'")
+
+    df_plot[eje_x] = df_plot[eje_x].dt.to_timestamp()
+
+    plt.figure(figsize=figsize)
+    sns.lineplot(
+        x=eje_x,
+        y=eje_y,
+        data=df_plot,
+        marker="o",
+        color=color
+    )
+    plt.xticks(rotation=rotation)
+    plt.tight_layout()
+    plt.show()
