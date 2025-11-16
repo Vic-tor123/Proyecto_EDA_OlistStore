@@ -5,7 +5,9 @@ import numpy as np
 #visualizaciones
 import seaborn as sns
 import matplotlib.pyplot as plt
-
+import plotly.express as px
+import requests
+import json
 
 
 def subplot_col_cat(df, exclude_cols=None):
@@ -148,15 +150,6 @@ def matriz_correlacion(df):
 
 
 
-################## generica eliminar
-
-
-
-
-
-
-####################### generica
-
 
 
 def lineplot_mensual(df, eje_x, eje_y, agregacion="count", figsize=(6,4), color="#6A176E", rotation=45):
@@ -190,3 +183,126 @@ def lineplot_mensual(df, eje_x, eje_y, agregacion="count", figsize=(6,4), color=
     plt.xticks(rotation=rotation)
     plt.tight_layout()
     plt.show()
+
+
+def objetivo_vs_categoricas(df, variables_relevantes, target):
+    """
+    Qué realiza la función:
+        Calcula y visualiza la relación entre un target y variables categóricas.
+        La función detecta automáticamente si el target es numérico o categórico:
+            - Si el target es numérico → calcula el promedio por categoría.
+            - Si el target es categórico con valores 'yes'/'no' → calcula la tasa de conversión (%).
+
+    Qué incluye la visualización:
+        - Gráficos de barras ordenados de mayor a menor valor.
+        - Paleta 'rocket' aplicada por categoría.
+        - Valores numéricos encima de cada barra.
+        - Ajuste automático del ancho de la figura según el número de categorías.
+
+    Parámetros:
+        df (pd.DataFrame): DataFrame que contiene los datos.
+        variables_relevantes (list): Lista de columnas categóricas a analizar.
+        target (str): Nombre de la columna objetivo. Puede ser numérica o categórica tipo 'yes'/'no'.
+
+    Returns:
+        None
+    """
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    
+    for col in variables_relevantes:
+        if df[target].dtype in ['int64','float64']:
+            # Target numérico → calcular promedio
+            valores = df.groupby(col)[target].mean().sort_values(ascending=False)
+            ylabel = f'Promedio de {target}'
+        else:
+            # Target categórico 'yes'/'no' → calcular tasa de conversión
+            valores = df.groupby(col)[target].apply(lambda x: (x == 'yes').sum() / len(x) * 100).sort_values(ascending=False)
+            ylabel = f'Tasa de conversión (%) de {target}'
+
+        print(f"--------------------------------")
+        print(f"{ylabel} por {col.upper()}")
+        print(f"--------------------------------")
+        print(valores.round(2))
+        
+        # Gráfico
+        num_cats = df[col].nunique()
+        fig_width = max(6, num_cats * 1.2)
+        plt.figure(figsize=(fig_width, 5))
+        
+        sns.barplot(
+            x=valores.index,
+            y=valores.values,
+            hue=valores.index,
+            dodge=False,
+            palette='rocket',
+            legend=False
+        )
+        
+        plt.title(f'{ylabel} por {col}')
+        plt.ylabel(ylabel)
+        plt.xlabel(col)
+        plt.xticks(rotation=45, ha='right')
+        
+        # Añadir valores encima de las barras
+        for i, v in enumerate(valores):
+            plt.text(i, v + 0.5, f'{v:.1f}', ha='center', fontweight='bold', fontsize=9)
+        
+        plt.tight_layout()
+        plt.show()
+
+
+def mapa_coropletas_estado(df, columna_estado, columna_conteo, columna_suma):
+    """
+    Genera un mapa coroplético de Brasil por estado, utilizando un GeoJSON 
+    externo y datos agregados del DataFrame.
+
+    Qué realiza la función:
+        - Carga dinámicamente el GeoJSON oficial de estados de Brasil.
+        - Agrega los datos por la columna de estado indicada.
+        - Crea un mapa coroplético usando Plotly basado en el conteo o suma de variables.
+        - Normaliza automáticamente los códigos de estado a mayúsculas.
+
+    Qué incluye la visualización:
+        - Mapa coroplético coloreado según el conteo de registros (columna_conteo).
+        - Escala de colores continua.
+        - Ajuste automático al área geográfica relevante.
+
+    Parámetros:
+        df (pd.DataFrame): DataFrame con los datos.
+        columna_estado (str): Nombre de la columna que contiene los estados (ej: 'customer_state').
+        columna_conteo (str): Columna a contar por estado (ej: 'order_id').
+        columna_suma (str): Columna a sumar por estado (ej: 'payment_value_knn').
+
+    Returns:
+        None (muestra el mapa interactivo en pantalla).
+    """
+    import requests
+    import plotly.express as px
+
+    # 1. Cargar geojson de estados de Brasil
+    url = "https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson"
+    geojson = requests.get(url).json()
+
+    # 2. Agregación por estado
+    df_agg = df.groupby(columna_estado).agg({
+        columna_conteo: 'count',
+        columna_suma: 'sum'
+    }).reset_index()
+
+    # Normalizar mayúsculas
+    df_agg[columna_estado] = df_agg[columna_estado].str.upper()
+
+    # 3. Crear mapa
+    fig = px.choropleth(
+        df_agg,
+        geojson=geojson,
+        locations=columna_estado,
+        featureidkey="properties.sigla",
+        color=columna_conteo,
+        color_continuous_scale="Purples",
+        scope="south america"
+    )
+
+    fig.update_geos(fitbounds="locations", visible=False)
+    fig.show()        
