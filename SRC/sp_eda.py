@@ -29,51 +29,39 @@ def eda_rapido(df):
 
 
 def eda_preliminar(df):
-    """
-    Que realiza la funcion 
-        Realiza un analisis exploratorion preliminar sobre un DataFrame dado, excluyendo las columnas ID.
-      
-    Que incluye el analisis
-         -Muestra aleatoria de 5 filas del DataFrame
-         -Informacion general del DataFrame  (tipo de datos, nulos, etc.)
-         - Porcentaje de valores nulos por columna.
-         -Conteo de filas duplicadas.
-         -Distribucion de valores para columnas categoricas (excluyendo IDs).     
-    
-    Parametros:
-    df (pd.DataFrame): DataFrame a analizar.
+    id_cols = ['order_id', 'customer_id', 'product_id', 'seller_id', 'review_id']
 
-    Returns
-    None    
-    """
-    
-    display(df.sample(5))
+    cols_sin_id = [c for c in df.columns if c not in id_cols]
+
+    # SAMPLE sin IDs
+    display(df[cols_sin_id].sample(5))
     print('------------------------')
+
     print('DIMENSIONES')
     print(f'Nuestro conjunto de datos presenta un total de {df.shape[0]} filas y {df.shape[1]} columnas')
     print('------------------------')
-    print('INFO')
-    display(df.info())              
+
+    print('INFO (sin ID)')
+    display(df[cols_sin_id].info())
     print('------------------------')
+
     print('NULOS')
-    display(df.isnull().mean()*100)
+    display(df[cols_sin_id].isnull().mean() * 100)
     print('------------------------')
+
     print('DUPLICADOS')
     print(df.duplicated().sum())
     print('------------------------')
+
     print('FRECUENCIA CATEGORICAS')
-    
-    # Definir columnas ID que no queremos analizar
-    id_cols = ['order_id', 'customer_id', 'product_id', 'seller_id', 'review_id']
-    
-    for col in df.select_dtypes(include='object').columns:
+    for col in df.select_dtypes(include="object").columns:
         if col not in id_cols:
             print(col.upper())
             print(df[col].value_counts())
             print('------------------------')
-    
-    print('------------------------')
+
     print('ESTADISTICOS NUMERICAS')
-    display(df.describe().T)
+    display(df.describe().T) 
+
 
     
