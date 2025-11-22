@@ -208,3 +208,4 @@ __marimo__/
 datos/*.csv 
 datos_originales/*.csv 
 *.csv 
+requirements_old.txt 

@@ -31,7 +31,7 @@ def eda_rapido(df):
 def eda_preliminar(df):
     """
     Que realiza la funcion 
-        Realiza un analisis exploratorion preliminar sobre un DataFrame dado, excluyendo las columnas ID.
+        Realiza un analisis exploratorion preliminar sobre un DataFrame dado, excluyendo las columnas ID y fechas.
       
     Que incluye el analisis
          -Muestra aleatoria de 5 filas del DataFrame

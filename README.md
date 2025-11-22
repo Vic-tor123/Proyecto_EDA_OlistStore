@@ -1,17 +1,14 @@
 # Proyecto E-commerce Olist (EDA)
+
+![Dashboard](imagenes/olistore_cover4.png)
+
 ## Descripción del Proyecto
 
+Este proyecto presenta un análisis exploratorio de datos (EDA) completo del dataset público de Olist, una plataforma de comercio electrónico brasileña. El objetivo es extraer insights sobre el comportamiento de compra, satisfacción del cliente, distribución geográfica de ventas y patrones temporales del negocio durante el período 2016-2018. 
 
-Este proyecto presenta un análisis exploratorio de datos (EDA) completo del dataset público de Olist, una plataforma de comercio electrónico brasileña. 
+El estudio se centra en pedidos completados (con fecha de entrega registrada) para poder evaluar la satisfacción del cliente mediante review_score y analizar tiempos de entrega reales. Se excluyeron 2341 registros (2.2%) correspondientes a pedidos en tránsito, en proceso de preparación o cancelados antes del envío, ya que estos no cuentan con las variables necesarias para el análisis de satisfacción (review_score, delivery_days). El dataset resultante comprende 104243 pedidos completados.
 
-El objetivo es extraer insights sobre el comportamiento de compra, satisfacción del cliente, distribución geográfica de ventas y patrones temporales del negocio durante el período 2016-2018. 
-
-El dataset original comprende 9 archivos CSV interrelacionados con aproximadamente 120,000 registros que, tras un proceso de unificación y limpieza, resultan en 104,243 pedidos completados analizados a través de 28 variables consolidadas. 
-
-El análisis utiliza técnicas de imputación de valores nulos (KNN Imputer e Iterative Imputer), análisis estadístico descriptivo y visualización de datos, culminando con un dashboard interactivo en Excel que permite explorar dinámicamente los KPIs más relevantes del negocio.
-
-
-El análisis culmina con un dashboard interactivo en Excel que permite visualizar los KPIs más relevantes y explorar los datos de forma dinámica mediante filtros.
+El dataset original comprende 9 archivos CSV interrelacionados con aproximadamente 120000 registros que, tras un proceso de unificación y limpieza, resultan en los 104243 pedidos analizados a través de 41 variables consolidadas. El análisis utiliza técnicas de imputación de valores nulos (KNN Imputer e Iterative Imputer), análisis estadístico descriptivo y visualización de datos, culminando con un dashboard interactivo en Excel que permite explorar dinámicamente los KPIs más relevantes del negocio.
 
 ##  Objetivos del Análisis
 
@@ -65,8 +62,8 @@ PROYECTO_EDA_OLISTORE
 │
 ├── .gitignore                        # Lista de archivos a ignorar por Git
 │
-├── README.md
-└── requirements.txt
+├── README.md                         # Guía y descripción del proyecto.
+└── requirements.txt                  # Lista de dependencias requeridas para el proyecto.
 ```
 
 ##  Instalación y Requisitos
@@ -95,17 +92,41 @@ PROYECTO_EDA_OLISTORE
 - Visual Studio Code
 - Git / GitHub
 
-**Instalación:**
+### 3. Instalación
+
+1. Clonar repositorio
+2. Crear y activar entorno virtual
 ```bash
-pip install pandas numpy matplotlib seaborn scikit-learn openpyxl
+py -m venv OlistStore
+source env/bin/activate      # Linux/Mac
+OlistStore\Scripts\activate  # Windows
+```
+3. Instalar dependencias
+
+ ```bash
+py -m pip install pandas numpy matplotlib seaborn scikit-learn openpyxl
 ```
 
-O mediante el archivo de requisitos:
+4. Documento "requirements":
 ```bash
-pip install -r requirements.txt
+pip freeze > requirements.txt
 ```
 
+  ### 💡 Nota sobre Archivos de Datos
 
+Los archivos CSV generados durante el análisis NO están incluidos en el repositorio por motivos de peso (superan los 100 MB en total). Esto incluye:
+- Archivos CSV originales de Kaggle
+- Archivos intermedios ('olist_unificado.csv', 'olist_limpios.csv', 'df_data_no_nulos.csv')
+
+
+**Para reproducir el análisis completo:**
+1. Descarga los datos originales desde Kaggle (ver sección "Instalación y Requisitos")
+2. Ejecuta los notebooks en orden secuencial
+3. Los archivos se generarán automáticamente en la carpeta "datos/"
+
+El código incluido permite regenerar todos los archivos csv necesarios sin necesidad de descargarlos del repositorio.
+
+---
 ##  Estructura de Datos
 
 El dataset consolidado contiene **41 variables** organizadas en las siguientes categorías:
@@ -165,13 +186,108 @@ El dataset consolidado contiene **41 variables** organizadas en las siguientes c
 - **geolocation_lat**: Latitud geográfica
 - **geolocation_lng**: Longitud geográfica
 
+## Orden de Ejecución de Notebooks
+
+Para reproducir el análisis completo, los notebooks deben ejecutarse en el siguiente orden secuencial:
+
+### 1. unificacion_csv.ipynb
+* **Dependencias:** Ninguna
+
+### 2. eda_preliminar.ipynb 
+* **Dependencias:** SRC/sp_eda.py
+
+### 3. limpieza.ipynb
+* **Dependencias:** SRC/sp_limpieza.py, SRC/sp_eda.py
+
+### 4. nulos.ipynb  
+* **Dependencias:** SRC/sp_nulos.py, SRC/sp_limpieza.py, SRC/sp_eda.py, SRC/sp_visualizaciones.py
+
+### 5. analisis.ipynb
+* **Dependencias:** SRC/sp_eda.py, SRC/sp_limpieza.py, SRC/sp_nulos.py, SRC/sp_visualizaciones.py
+
+
+##  Desarrollo del Proyecto
+
+Este proyecto se desarrolló siguiendo una metodología estructurada de análisis de datos, dividida en etapas secuenciales que aseguraron la calidad y coherencia del análisis.
+
+### **Etapa 1: Unificación de Datos**
+
+Se integraron **9 archivos CSV independientes** del dataset público de Olist en un único DataFrame consolidado mediante merges secuenciales tipo 'left'. El resultado fue un dataset unificado con **119143 registros y 40 columnas** que combina información de pedidos, productos, clientes, vendedores, pagos y reseñas. Se guardó como "olist_unificado.csv".
+
+### **Etapa 2: Análisis Exploratorio Preliminar**
+
+Se realizó un primer análisis exploratorio para identificar la estructura y calidad de los datos. Se detectaron **valores nulos significativos** en múltiples columnas, **11303 registros duplicados**, y se identificaron las distribuciones principales de variables categóricas y numéricas. Este análisis estableció las bases para las decisiones de limpieza posteriores.
+
+### **Etapa 3: Limpieza de Datos**
+
+Se estandarizó el dataset mediante:
+- Conversión de 6 columnas de fechas a formato datetime
+- Corrección de nombres de columnas con errores ortográficos
+- Estandarización de categorías (boleto a bank_slip)
+- Conversión de 7 variables a tipo entero donde correspondía
+- Conversión de texto a minúsculas en variables geográficas
+- **Eliminación de 11303 registros duplicados**
+
+El dataset limpio resultó en **107837 registros** guardados como "olist_limpios.csv".
+
+### **Etapa 4: Gestión de Valores Nulos**
+
+Se aplicó un tratamiento sistemático de nulos con estrategias diferenciadas:
+
+**Variables categóricas:**
+- payment_type: imputado con moda (credit_card)
+- seller_state: imputado con moda (SP)
+- product_category_name_english: imputado con "unknown"
+
+**Variables numéricas:**
+- **KNN Imputer (5 vecinos):** Para variables correlacionadas espacialmente (price, freight_value, product_weight_g, dimensiones)
+- **Iterative Imputer (50 iteraciones):** Para variables con dependencias múltiples (review_score, payment_installments)
+
+Se eliminaron **2341 registros sin fecha de entrega** (pedidos en tránsito, cancelados o en proceso) por no ser aplicables al análisis de satisfacción del cliente.
+
+Dataset final: **104243 registros sin valores nulos** guardado como "df_data_no_nulos.csv".
+
+### **Etapa 5: Análisis Exploratorio Completo**
+
+Se realizó un análisis profundo del dataset limpio que incluyó:
+- Distribuciones de variables categóricas y numéricas
+- Matriz de correlación entre variables numéricas
+- Análisis de la variable objetivo (review_score) vs predictores
+- Identificación de outliers mediante método IQR
+- Análisis temporal de ventas, pedidos y satisfacción
+- Análisis geográfico de concentración comercial
+
+**Hallazgo clave:** La satisfacción del cliente NO depende del precio (correlación 0), sino de factores operativos como tiempo de entrega y ubicación geográfica.
+
+### **Etapa 6: Preparación de Dashboard**
+
+Se generaron tablas agregadas para crear un dashboard interactivo en Excel:
+- KPIs principales (ventas totales, pedidos, rating promedio)
+- Evolución temporal mensual
+- TOP categorías y estados
+- Análisis de satisfacción por múltiples dimensiones
+
+El dashboard permite explorar dinámicamente los datos mediante filtros (slicers) y visualizaciones interactivas.
+
+### **Herramientas y Técnicas**
+
+- **Python:** Lenguaje principal de análisis
+- **Pandas, NumPy:** Manipulación y análisis de datos
+- **Matplotlib, Seaborn:** Visualización de datos
+- **Scikit-learn:** Imputación avanzada (KNNImputer, IterativeImputer)
+- **Módulos personalizados (SRC):** Funciones reutilizables para EDA, limpieza y gestión de nulos
+- **Excel:** Dashboard final interactivo
+
+### **Resultado**
+
+Un análisis completo y reproducible que transforma datos crudos en insights accionables sobre el comportamiento del e-commerce brasileño, con énfasis en factores que determinan la satisfacción del cliente.
 
 ## Resultados y Conclusiones
 
 ### **Principales Hallazgos:**
 
 **Operación Logística:**
-- Tasa de entrega exitosa del **99.99%** (104,236 de 104,243 pedidos completados)
+- Tasa de entrega exitosa del **99.99%** (104236 de 104243 pedidos completados)
 - Tiempo promedio de entrega: 10-15 días
 - Fuerte concentración geográfica: São Paulo representa el 42% de clientes y 71% de vendedores
 
@@ -194,14 +310,20 @@ El dataset consolidado contiene **41 variables** organizadas en las siguientes c
 - **La satisfacción NO depende del precio** (correlación 0). Los factores más relevantes son el tiempo de entrega y la ubicación geográfica del cliente.
 
 
+## Dashboard
+
+![Dashboard](imagenes/Dashboard.png)
 
 ##  Próximos Pasos
 
-- Realizar un **análisis regional detallado** para comparar el desempeño entre norte y sur de Brasil
-- **Estudio por categoría** para identificar factores específicos que impactan la satisfacción (peso, precio, tiempo de entrega)
-- **Análisis de mejores prácticas de vendedores** para crear programas de capacitación basados en vendedores exitosos
-- Explorar la **estacionalidad** con modelos de series temporales para proyectar demanda futura
 
+- **Análisis de pedidos no completados:** Estudiar los 2341 pedidos excluidos de este análisis (en tránsito, cancelados antes de envío, en proceso) para identificar patrones de cancelación, tiempos de procesamiento. Este análisis complementaría el enfoque actual de satisfacción con insights sobre eficiencia operativa y prevención de pérdidas.
+
+- **Análisis regional detallado:** Comparativa entre norte y sur de Brasil para identificar diferencias en servicio y satisfacción.
+
+- **Estudio por categoría de producto:** Identificar factores específicos que impactan la satisfacción en cada categoría (peso, precio, tiempo de entrega, descripciones) para desarrollar estrategias diferenciadas por tipo de producto.
+
+- **Análisis de mejores prácticas de vendedores:** Comparar vendedores de alto y bajo desempeño para crear programas de capacitación mirando a factores como tiempos de respuesta, calidad de descripciones, categorías especializadas.
 ---
 
 ##  Contribuciones
