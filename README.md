@@ -333,8 +333,9 @@ Si tienes alguna propuesta o corrección, no dudes en compartirla. Cualquier tip
 ## Autor
 
 
-* GitHub [Vic-tor123](https://github.com/Vic-tor123)
-* LinkedIn [Vic-tor123LinkedIn](https://www.linkedin.com/in/Vic-tor123LinkedIn/)
+* **GitHub** [Vic-tor123](https://github.com/Vic-tor123)
+* **LinkedIn** [Vic-tor123LinkedIn](https://www.linkedin.com/in/victor-carballido-brea-03a52052/)
+
 
 
 
